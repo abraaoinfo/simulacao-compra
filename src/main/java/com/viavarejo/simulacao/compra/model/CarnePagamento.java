@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,30 +24,55 @@ public class CarnePagamento {
         this.valorSerPago = valorSerPago;
         this.juros =juros;
 
-        BigDecimal valParcela = calculaValorParcela(valorSerPago, juros);
+        BigDecimal valParcela = calculaValorParcela(valorSerPago);
 
-        for (int i = 1; i <= qtdParcela; i++) {
-            parcelas.add(new Parcela(i, valParcela, juros));
+        criandoParcelas(qtdParcela, juros, valParcela);
+
+    }
+
+    private void criandoParcelas(Integer qtdParcela, BigDecimal juros, BigDecimal valParcela) {
+        for (int numParcela = 1; numParcela <= qtdParcela; numParcela++) {
+
+            if(numParcela ==1){
+                BigDecimal valoPrimeiraParcela = verificaAjusteValorPrimeiraParcela(valParcela);
+                parcelas.add(new Parcela(numParcela, valoPrimeiraParcela, juros));
+            }else {
+                parcelas.add(new Parcela(numParcela, valParcela, juros));
+            }
         }
     }
-    private BigDecimal calculaValorParcela( BigDecimal valorSerPago, BigDecimal juros) {
 
-        log.info("calculando valor da parcela");
+    private BigDecimal verificaAjusteValorPrimeiraParcela(BigDecimal valParcela) {
 
-        BigDecimal valParcela = valorSerPago.divide(new BigDecimal(qtdParcela));
-        if (juros.compareTo(BigDecimal.ZERO) > 0) {
-            valParcela = adcionaJurosParcela(valParcela, juros);
+        log.info("verifica_ser_total_parcelado_e_igual_ao_total_a_pagar");
+
+        BigDecimal valorTodasParcelas = valParcela.multiply(new BigDecimal(qtdParcela));
+        BigDecimal diferenca = valorSerPago.subtract(valorTodasParcelas);
+
+        if(diferenca.compareTo(BigDecimal.ZERO) >0){
+            log.info("adicionado difernça na primeira parcela");
+            valParcela = valParcela.add(diferenca);
         }
+
         return valParcela;
     }
 
-    private BigDecimal  adcionaJurosParcela(BigDecimal valParcela, BigDecimal juros){
-        log.info("adicionando juroa ao valor da parcela");
+    private BigDecimal calculaValorParcela( BigDecimal valorSerPago) {
 
-        BigDecimal percJuros = juros.divide(new BigDecimal("100")).add(BigDecimal.ONE);
-        return valParcela.multiply(percJuros);
+        log.info("calculando valor da parcela");
+
+        return valorSerPago.divide(new BigDecimal(qtdParcela),2, BigDecimal.ROUND_DOWN);
 
     }
+
+
+
+
+
+
+
+
+
 
 
 }
