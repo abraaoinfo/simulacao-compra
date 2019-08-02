@@ -1,0 +1,26 @@
+
+management:
+  server:
+    servlet:
+      context-path: /actuator
+
+spring:
+  application:
+    name: sales
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+    default-property-inclusion: non_null
+
+servico:
+  taxa-juros:
+    uri: https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados/
+
+
+logging:
+  config:
+    classpath: log4j2.yml
+
