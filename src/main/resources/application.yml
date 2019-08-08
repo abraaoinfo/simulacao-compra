@@ -6,7 +6,7 @@ management:
 
 spring:
   application:
-    name: sales
+    name: simulacao-compra
   jackson:
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
     serialization:
@@ -14,6 +14,10 @@ spring:
     deserialization:
       FAIL_ON_UNKNOWN_PROPERTIES: false
     default-property-inclusion: non_null
+  data:
+    mongodb:
+      host: springboot-mongo/simulacao-compra
+      exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
 servico:
   taxa-juros:

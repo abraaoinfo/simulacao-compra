@@ -3,6 +3,7 @@ package com.viavarejo.simulacao.compra.service;
 import com.viavarejo.simulacao.compra.exception.ServiceTaxaSelicException;
 import com.viavarejo.simulacao.compra.exception.TaxaSelicNotFoundException;
 import com.viavarejo.simulacao.compra.model.*;
+import com.viavarejo.simulacao.compra.repository.ProdutoRepository;
 import com.viavarejo.simulacao.compra.request.SimulacaoCompraRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class SimulacaoCompraService {
    @Value("${servico.taxa-juros.uri}")
    private  String uriServiceTaxaSelic;
 
+   @Autowired
+   private ProdutoRepository produtoRepository;
+
    public List<Parcela> geraSimulacaoCompra(SimulacaoCompraRequest vendaRequest) {
 
       validadeRequest(vendaRequest);
@@ -40,6 +44,8 @@ public class SimulacaoCompraService {
 
       CarnePagamento carne = new CarnePagamento(
               vendaRequest.getCondicaoPagamento().getQtdeParcelas(), valorSerPago,  txaJuroAcumulada);
+
+      produtoRepository.save(vendaRequest.getProduto());
 
       log.info("simulacao de compra do produto finalizada {}", vendaRequest.getProduto().getNome());
 
