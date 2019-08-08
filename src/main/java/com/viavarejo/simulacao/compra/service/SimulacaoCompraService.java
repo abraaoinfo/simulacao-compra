@@ -7,9 +7,6 @@ import com.viavarejo.simulacao.compra.request.SimulacaoCompraRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -17,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -66,21 +64,23 @@ public class SimulacaoCompraService {
                       BigDecimal::add).setScale(2, RoundingMode.HALF_EVEN);
    }
 
-   private List<TaxaJuro> getListTaxaSelicPorUltimoDias(Integer ultimosDias) {
-      ResponseEntity<List<TaxaJuro>> body;
+   public List<TaxaJuro> getListTaxaSelicPorUltimoDias(Integer ultimosDias) {
+      List<TaxaJuro> taxaJuroList;
       try {
-         body = restTemplate.exchange(criandoUriTaxaSelicUltimoDias(ultimosDias),
-                 HttpMethod.GET, null, new ParameterizedTypeReference<List<TaxaJuro>>() {});
+
+         TaxaJuro [] taxaJuros =restTemplate.getForObject(criandoUriTaxaSelicUltimoDias(ultimosDias),
+                 TaxaJuro[].class);
+         taxaJuroList = Arrays.asList(taxaJuros);
+
       }catch (Exception ex){
          log.error("erro_chamar_serviço_tava_juros", ex.getMessage());
          throw new ServiceTaxaSelicException("erro_chamar_serviço_tava_juros", ex);
       }
 
-
-      if(CollectionUtils.isEmpty(body.getBody())){
+      if(CollectionUtils.isEmpty(taxaJuroList)){
          throw  new TaxaSelicNotFoundException("não_foi_possivel_encontrar_taxa_selic");
       }
-      return body.getBody();
+      return taxaJuroList;
 
    }
 
