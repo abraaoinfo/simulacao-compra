@@ -4,6 +4,8 @@ management:
     servlet:
       context-path: /actuator
 
+
+
 spring:
   application:
     name: sales
