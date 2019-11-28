@@ -20,7 +20,7 @@ import java.util.List;
 @Api (value = "simulacao compra")
 @RestController
 @RequestMapping("/v1/simulacao/compras")
-public class SimulacaoCompraApi {
+public class SimulacaoCompraController {
 
     @Autowired
     private SimulacaoCompraService simulacaoCompraService;

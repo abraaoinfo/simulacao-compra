@@ -1,16 +1,13 @@
 package com.viavarejo.simulacao.compra.service;
 
 import com.viavarejo.simulacao.compra.exception.ServiceTaxaSelicException;
-import com.viavarejo.simulacao.compra.exception.TaxaSelicNotFoundException;
 import com.viavarejo.simulacao.compra.model.*;
-import com.viavarejo.simulacao.compra.repository.ProdutoRepository;
 import com.viavarejo.simulacao.compra.request.SimulacaoCompraRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -28,8 +25,6 @@ public class SimulacaoCompraService {
    @Value("${servico.taxa-juros.uri}")
    private  String uriServiceTaxaSelic;
 
-   @Autowired
-   private ProdutoRepository produtoRepository;
 
    public List<Parcela> geraSimulacaoCompra(SimulacaoCompraRequest vendaRequest) {
 
@@ -45,7 +40,6 @@ public class SimulacaoCompraService {
       CarnePagamento carne = new CarnePagamento(
               vendaRequest.getCondicaoPagamento().getQtdeParcelas(), valorSerPago,  txaJuroAcumulada);
 
-      produtoRepository.save(vendaRequest.getProduto());
 
       log.info("simulacao de compra do produto finalizada {}", vendaRequest.getProduto().getNome());
 
@@ -70,23 +64,19 @@ public class SimulacaoCompraService {
                       BigDecimal::add).setScale(2, RoundingMode.HALF_EVEN);
    }
 
-   public List<TaxaJuro> getListTaxaSelicPorUltimoDias(Integer ultimosDias) {
-      List<TaxaJuro> taxaJuroList;
+   private List<TaxaJuro> getListTaxaSelicPorUltimoDias(Integer ultimosDias) {
       try {
 
          TaxaJuro [] taxaJuros =restTemplate.getForObject(criandoUriTaxaSelicUltimoDias(ultimosDias),
                  TaxaJuro[].class);
-         taxaJuroList = Arrays.asList(taxaJuros);
 
+         Assert.notEmpty(taxaJuros,"não_foi_possivel_encontrar_taxa_selic");
+
+         return Arrays.asList(taxaJuros);
       }catch (Exception ex){
          log.error("erro_chamar_serviço_tava_juros", ex.getMessage());
          throw new ServiceTaxaSelicException("erro_chamar_serviço_tava_juros", ex);
       }
-
-      if(CollectionUtils.isEmpty(taxaJuroList)){
-         throw  new TaxaSelicNotFoundException("não_foi_possivel_encontrar_taxa_selic");
-      }
-      return taxaJuroList;
 
    }
 
