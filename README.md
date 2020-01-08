@@ -36,7 +36,7 @@ Obs. Não é necessario para executar a aplicação, mas é recomendado instalar
 
 ## Divida Tecnicas
 
-Não foram feito os teste intregado, apaser da sua importancia.
+Não foram feito os teste intregado, apesar da sua importancia.
 
 
 
